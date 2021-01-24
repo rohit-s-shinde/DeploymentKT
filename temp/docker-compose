@@ -1,0 +1,6 @@
+version: "3.9"
+services:
+    temp:
+        build: .
+        ports:
+            - "8420:8000"
