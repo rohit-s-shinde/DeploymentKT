@@ -1,5 +1,5 @@
-# SampleKT
-Sample code for KT
+# Deployment KT
+#### Sample code for KT
 
 Contents:
 1) uWSGI
