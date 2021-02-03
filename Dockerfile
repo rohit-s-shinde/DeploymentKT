@@ -1,8 +1,8 @@
 FROM python:3.6
 
-COPY /temp /temp
+COPY /greetings /greetings
 
-WORKDIR /temp
+WORKDIR /greetings
 
 RUN pip install -U -r requirements.txt
 
