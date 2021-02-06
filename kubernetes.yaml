@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: deployment-service
+  labels:
+    app: deployment-service
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+    name: http
+    protocol: TCP
+  selector:
+    app: deployment-service
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-service-v1
+  labels:
+    app: deployment-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployment-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: deployment-service
+        version: v1
+    spec:
+      containers:
+      - image: "infyartifactory.ad.infosys.com:443/iecp_aiincubation/kt/deployment_kt:latest"
+        name: deployment-service
+        ports:
+        - containerPort: 8000
+          name: prediction
+        securityContext:
+            runAsUser: 0
+        resources:
+            requests:       
+                memory: '3Gi'     
+        imagePullPolicy: Always
+      #   volumeMounts:
+      #   - mountPath: "/IPData"
+      #     name: deployment-pv-volume
+      # volumes:
+      # - name: deployment-pv-volume
+      #   persistentVolumeClaim:
+      #     claimName: deployment-pv-claim
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: deployment-service-vs
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - iecpmlwrkbench/istio-iecp-workbench-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/greet"
+    rewrite:
+        uri: /greet
+    route:
+    - destination:
+        host: deployment-service.iecpmlwrkbench.svc.cluster.local
+        port:
+          number: 8000
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: deployment-service-ds
+spec:
+  host: deployment-service.iecpmlwrkbench.svc.cluster.local
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRole
+metadata:
+  name: deployment-service
+spec:
+  rules:
+  - services:
+    - deployment-service.iecpmlwrkbench.svc.cluster.local
+---
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRoleBinding
+metadata:
+  name: deployment-service-srb 
+spec:
+  roleRef:
+    kind: ServiceRole
+    name: deployment-service
+  subjects:
+  - properties:
+      source.principal: "*"
