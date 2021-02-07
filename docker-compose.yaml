@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-    gteetings:
+    greetings:
         build: .
         ports:
             - "8420:8000"
