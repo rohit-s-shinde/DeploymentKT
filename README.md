@@ -11,7 +11,11 @@ Requirements:
 2. docker-compose
 
 Run:
+
 ```commandline
 docker-compose up --build
 ```
 
+```commandline
+kubectl apply -f kubernetes.yml
+```
