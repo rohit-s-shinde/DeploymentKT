@@ -34,7 +34,7 @@ spec:
         version: v1
     spec:
       containers:
-      - image: "infyartifactory.ad.infosys.com:443/iecp_aiincubation/kt/deployment_kt:latest"
+      - image: "/kt/deployment_kt:latest"
         name: deployment-service
         ports:
         - containerPort: 8000
